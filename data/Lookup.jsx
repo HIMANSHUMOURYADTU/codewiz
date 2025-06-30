@@ -5,7 +5,7 @@ export default {
   HERO_HEADING: 'What do you want to build?',
   HERO_DESC: 'Prompt, run, edit, and deploy full-stack web apps.',
   INPUT_PLACEHOLDER: 'What you want to build?',
-  SIGNIN_HEADING: 'Continue With Zephyr',
+  SIGNIN_HEADING: 'Continue With Codewize',
   SIGNIN_SUBHEADING: 'To use Pulse you must log into an existing account or create one.',
   SIGNIn_AGREEMENT_TEXT: 'By using Pulse, you agree to the collection of usage data for analytics.',
 
