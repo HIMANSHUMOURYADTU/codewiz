@@ -13,10 +13,15 @@ const WorkSpaceHistory = () => {
   const { toggleSidebar } = useSidebar();
 
   useEffect(() => {
-    userDetail && GetAllWorkspace();
-  }, [userDetail]);
+    if (userDetail?._id) {
+      GetAllWorkspace();
+    }
+  }, [userDetail?._id]);
 
   const GetAllWorkspace = async () => {
+    if (!userDetail?._id) {
+      return;
+    }
     const result = await convex.query(api.workspace.GetAllWorkspace, {
       userId: userDetail?._id,
     });

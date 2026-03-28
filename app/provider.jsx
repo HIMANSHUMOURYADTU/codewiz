@@ -44,7 +44,7 @@ const Provider = ({ children }) => {
   return (
     <div>
       <GoogleOAuthProvider
-        clientId={process.env.NEXT_PUBLIC_GOOGLE_AUTH_CLIENT_ID_KEY}
+        clientId={process.env.NEXT_PUBLIC_GOOGLE_AUTH_CLIENT_ID_KEY || ""}
       >
         <PayPalScriptProvider
           options={{ "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}

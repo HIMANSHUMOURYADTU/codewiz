@@ -30,6 +30,140 @@ const countToken = (inputText) => {
     .filter((word) => word).length;
 };
 
+const normalizeSandpackFiles = (files = {}) => {
+  const normalized = { ...files };
+
+  if (!normalized["/App.js"] && normalized["/src/App.js"]) {
+    normalized["/App.js"] = normalized["/src/App.js"];
+  }
+
+  if (!normalized["/index.js"] && normalized["/src/index.js"]) {
+    normalized["/index.js"] = normalized["/src/index.js"];
+  }
+
+  Object.keys(normalized).forEach((key) => {
+    const file = normalized[key];
+    if (!file || typeof file.code !== "string" || file.code === null || file.code === "null" || file.code.trim() === "") {
+      console.warn(`Removing invalid file entry: ${key}`);
+      delete normalized[key];
+      return;
+    }
+  });
+
+  if (!normalized["/App.js"] || !normalized["/App.js"].code.trim()) {
+    normalized["/App.js"] = {
+      code:
+        "import React from 'react';\n" +
+        "export default function App() {\n" +
+        "  return (\n" +
+        "    <div className='min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-center'>\n" +
+        "      <div className='text-center space-y-3'>\n" +
+        "        <h1 className='text-4xl font-bold'>Your app is loading</h1>\n" +
+        "        <p className='text-slate-300'>Try generating again if the output is empty.</p>\n" +
+        "      </div>\n" +
+        "    </div>\n" +
+        "  );\n" +
+        "}\n",
+    };
+  }
+
+  // Fix imports and exports across all JS/JSX files
+  Object.keys(normalized).forEach((key) => {
+    if (!key.endsWith(".js") && !key.endsWith(".jsx")) return;
+    
+    const file = normalized[key];
+    if (typeof file?.code !== "string") return;
+
+    // 1. Convert any named imports from local relative files to default imports.
+    // e.g., import { Component } from './components' -> import Component from './components'
+    // This fixes "got undefined" errors if the AI used named imports but default exports.
+    file.code = file.code.replace(
+      /import\s*\{\s*([A-Za-z0-9_]+)\s*\}\s*from\s*['"](\.[^'"]+)['"];?/g,
+      "import $1 from '$2';"
+    );
+    
+    // Remove any CSS imports since we inject Tailwind globally
+    file.code = file.code.replace(/import\s+['"].*\.css['"];?\n?/g, '');
+
+    // 2. Force Default Exports for components
+    if (key !== "/App.js" && key !== "/index.js") {
+      const componentName = key.split("/").pop()?.replace(/\.jsx?$/, "");
+      
+      if (!/export\s+default/m.test(file.code) && componentName) {
+        // Try to find the exact function or const with the matching component name
+        const match = file.code.match(new RegExp(`(?:const|function|class)\\s+(${componentName})\\b`, "m"));
+        if (match && match[1]) {
+          file.code += `\n\nexport default ${match[1]};`;
+        } else {
+          // If we can't find it, look for ANY function or const that starts with uppercase
+          const backupMatch = file.code.match(/(?:const|function|class)\s+([A-Z][a-zA-Z0-9_]+)\b/m);
+          if (backupMatch && backupMatch[1]) {
+             file.code += `\n\nexport default ${backupMatch[1]};`;
+          }
+        }
+      }
+    }
+  });
+
+  if (!normalized["/index.js"]) {
+    normalized["/index.js"] = {
+      code:
+        "import React from 'react';\n" +
+        "import { createRoot } from 'react-dom/client';\n" +
+        "import App from './App';\n" +
+        "const root = createRoot(document.getElementById('root'));\n" +
+        "root.render(<App />);\n",
+    };
+  }
+
+  if (!normalized["/package.json"]) {
+    normalized["/package.json"] = {
+      code: JSON.stringify(
+        {
+          name: "react-app",
+          version: "1.0.0",
+          main: "/index.js",
+          dependencies: {
+            react: "^18.2.0",
+            "react-dom": "^18.2.0",
+            "lucide-react": "^0.469.0",
+            "react-router-dom": "^6.14.0",
+            "react-scripts": "^5.0.0"
+          },
+          scripts: {
+            "start": "react-scripts start",
+            "build": "react-scripts build",
+            "test": "react-scripts test",
+            "eject": "react-scripts eject"
+          }
+        },
+        null,
+        2
+      ),
+    };
+  }
+
+  if (!normalized["/public/index.html"]) {
+    normalized["/public/index.html"] = {
+      code:
+        '<!DOCTYPE html>\n' +
+        '<html lang="en">\n' +
+        '  <head>\n' +
+        '    <meta charset="UTF-8">\n' +
+        '    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
+        '    <script src="https://cdn.tailwindcss.com"></script>\n' +
+        '    <title>React App</title>\n' +
+        '  </head>\n' +
+        '  <body>\n' +
+        '    <div id="root"></div>\n' +
+        '  </body>\n' +
+        '</html>',
+    };
+  }
+
+  return normalized;
+};
+
 function CodeView() {
   const convex = useConvex();
   const { id } = useParams();
@@ -78,12 +212,13 @@ function CodeView() {
       });
       console.log(result.data);
       const aiResp = result.data;
+      const normalizedFiles = normalizeSandpackFiles(aiResp?.files);
 
-      const mergedFiles = { ...Lookup.DEFAULT_FILE, ...aiResp.files };
+      const mergedFiles = { ...Lookup.DEFAULT_FILE, ...normalizedFiles };
       setFiles(mergedFiles);
       await UpdateFiles({
         workspaceId: id,
-        files: aiResp?.files,
+        files: normalizedFiles,
       });
       const token =
         Number(userDetail?.token) - Number(countToken(JSON.stringify(aiResp)));
@@ -122,9 +257,11 @@ function CodeView() {
       <SandpackProvider
         template="react"
         theme="dark"
-        customSetup={{ dependencies: { ...Lookup.DEPENDANCY } }}
         files={files}
-        options={{ externalResources: ["https://cdn.tailwindcss.com"] }}
+        options={{ 
+          externalResources: ["https://cdn.tailwindcss.com"],
+          bundlerURL: "https://sandpack-bundler.codesandbox.io",
+        }}
       >
         <SandpackLayout>
           {activeTab == "code" ? (

@@ -1,7 +1,7 @@
 import dedent from "dedent";
 
 export default {
-  SUGGSTIONS: ['Create ToDo App in React', 'Create Budget Track App', 'Create Gym Managment Portal Dashboard', 'Create Quizz App On History', 'Create Login Signup Screen'],
+  SUGGSTIONS: ['Create a beautiful, modern ToDo App in React with Tailwind', 'Create a premium Enterprise Budget Tracker Dashboard', 'Create a gym management portal with glassmorphism UI', 'Create a sleek interactive History Quiz App', 'Create an animated, responsive Login & Signup Screen'],
   HERO_HEADING: 'What do you want to build?',
   HERO_DESC: 'Prompt, run, edit, and deploy full-stack web apps.',
   INPUT_PLACEHOLDER: 'What you want to build?',
@@ -57,7 +57,6 @@ export default config;
     }
   },
   DEPENDANCY: {
-
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     autoprefixer: "^10.0.0",
@@ -71,6 +70,7 @@ export default config;
     "date-fns": "^4.1.0",
     "react-chartjs-2": "^5.3.0",
     "chart.js": "^4.4.7",
+    "react-dom": "latest",
   },
   PRICING_DESC:'Start with a free account to speed up your workflow on public projects or boost your entire team with instantly-opening production environments.',
   PRICING_OPTIONS:[

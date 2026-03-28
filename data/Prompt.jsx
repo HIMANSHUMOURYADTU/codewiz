@@ -10,64 +10,76 @@ export default{
 `,
 
 CODE_GEN_PROMPT:dedent`
-Generate a Project in React. Create multiple components, organizing them in separate folders with filenames using the .js extension, if needed. The output should use Tailwind CSS for styling, 
-without any third-party dependencies or libraries, except for icons from the lucide-react library, which should only be used when necessary. Available icons include: Heart, Shield, Clock, Users, Play, Home, Search, Menu, User, Settings, Mail, Bell, Calendar, Star, Upload, Download, Trash, Edit, Plus, Minus, Check, X, and ArrowRight. For example, you can import an icon as import { Heart } from "lucide-react" and use it in JSX as <Heart className="" />.
-also you can use date-fns for date format and react-chartjs-2 chart, graph library
+You are an expert React developer. Generate a PERFECT, production-ready React app that follows industry best practices.
 
-Return the response in JSON format with the following schema:
+Your task: Create a complete, fully-functional React application with beautiful UI design.
+
+QUALITY STANDARDS (MUST follow all):
+- Code MUST be production-grade: clean, well-structured, properly formatted
+- Design MUST be modern and professional with proper spacing, colors, gradients, and typography
+- UX MUST be intuitive and responsive (mobile-first design)
+- Performance MUST be optimized (no unnecessary re-renders, efficient state management)
+- Error handling MUST be implemented
+- NO syntax errors, NO incomplete code, NO null values. Pay close attention to curly braces {}, brackets [], and parentheses (). Make sure every function and return statement is correctly closed.
+
+ARCHITECTURE (follow this pattern):
+- Use functional components with React hooks (useState, useEffect, useCallback, useMemo)
+- Proper component organization - break into smaller, reusable components
+- Clean prop passing and state management
+- Proper React best practices for rendering and optimization
+
+STYLING:
+- YOU MUST USE Tailwind CSS for ALL styling. NEVER output bare HTML elements like <button>, <input>, or <div> without extensive Tailwind classes.
+- The UI MUST look like a modern, expensive, enterprise-grade SaaS application. Use complex, beautiful Tailwind combinations.
+- Backgrounds: Use rich gradients ('bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900') or crisp light modes ('bg-gray-50' with 'bg-white' cards).
+- Cards/Containers: ALWAYS use 'shadow-xl', 'rounded-2xl', 'p-6', 'border', 'border-white/10' or 'border-gray-200', and often 'backdrop-blur-lg' for glassmorphism.
+- Typography: Use tracking-tight headings ('text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400'). 
+- Buttons: Beautiful buttons ONLY ('px-6 py-3 rounded-xl font-semibold bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/30 transition-all duration-300 hover:scale-[1.02]').
+- Inputs: Sleek modern inputs ('w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all').
+- Make it look INCREDIBLE. No plain white backgrounds with black text on the master App.js container!
+
+CODE QUALITY:
+- Proper imports at the top of each file
+- Clear variable and function names
+- Comments for complex logic
+- Proper error boundaries if needed
+- Ensure all components are valid and properly exported
+
+FEATURES TO INCLUDE:
+- At least 2-3 interactive sections that showcase core functionality
+- Professional header/nav if applicable
+- Proper forms or input handling if needed
+- Optional: animations or transitions for polish
+
+OUTPUT JSON SCHEMA (MUST be valid JSON):
 {
-  "projectTitle": "",
-  "explanation": "",
+  "projectTitle": "App Name",
+  "explanation": "Description of what the app does",
   "files": {
-    "/App.js": {
-      "code": ""
-    },
-    ...
+    "/App.js": { "code": "import React from 'react';\nexport default function App() {\n  return <div>Hello World</div>;\n}" },
+    "/components/Header.js": { "code": "import React from 'react';\nexport default function Header() {\n  return <header>Header</header>;\n}" }
   },
   "generatedFiles": []
 }
 
-Here’s the reformatted and improved version of your prompt:
-
-Generate a programming code structure for a React project using Vite. Create multiple components, organizing them in separate folders with filenames using the .js extension, if needed. The output should use Tailwind CSS for styling, without any third-party dependencies or libraries, except for icons from the lucide-react library, which should only be used when necessary. Available icons include: Heart, Shield, Clock, Users, Play, Home, Search, Menu, User, Settings, Mail, Bell, Calendar, Star, Upload, Download, Trash, Edit, Plus, Minus, Check, X, and ArrowRight. For example, you can import an icon as import { Heart } from "lucide-react" and use it in JSX as <Heart className="" />.
-
-Return the response in JSON format with the following schema:
-
-json
-Copy code
-{
-  "projectTitle": "",
-  "explanation": "",
-  "files": {
-    "/App.js": {
-      "code": ""
-    },
-    ...
-  },
-  "generatedFiles": []
+CRITICAL REMINDERS:
+- ALWAYS export your components using default export (e.g. 'export default function ComponentName()').
+- ALWAYS import your components using default imports (e.g. 'import Header from "./Header";' NOT 'import { Header } from "./Header";').
+- DO NOT use barrel files (index.js) for components. Do not export multiple components from one file.
+- ALWAYS check variable scope. EVERY variable used in JSX (like mapping over an array) MUST be defined locally (e.g., const [expenses, setExpenses] = useState([])), passed as a prop, or imported. NEVER use undefined variables!
+- Initialize states properly. If you are mapping over an array, initialize the state as an empty array [] or with mock data, NOT null.
+- IF passing data between components, ENSURE the props are actually passed in the parent component and received in the child component.
+- ALWAYS import specific icons from lucide-react (e.g. 'import { Home, User } from "lucide-react";') and use them as '<Home />'. 
+- NEVER import or use the generic '<Icon />' component from lucide-react. It will crash the app.
+- NEVER fetch data from placeholder URLs like example.com. Always mock data locally using React state (e.g., useState) instead of making real HTTP network requests.
+- NEVER use string attributes for complex values: use JSX: prop={[...]} NOT prop="[...]"
+- NEVER use <lucide:icon /> syntax - this is INVALID
+- NEVER import UI libraries like shadcn/ui unless you generate the full source code for them in the files JSON.
+- DO NOT use Next.js imports like 'next/link' or 'next/image'. Use react-router-dom or standard HTML tags.
+- Escape newlines properly: use \n for newlines inside strings
+- Return ONLY valid JSON, nothing else
+- DOUBLE-CHECK all code for syntax errors before responding. EVERY brace and bracket MUST match! Make sure you did not accidentally write \`];\` instead of \`};\`.
+- Ensure /App.js is always complete and never null/empty
+- Ensure every component you import actually exists in the files you generate.
+`,
 }
-Ensure the files field contains all created files, and the generatedFiles field lists all the filenames. Each file's code should be included in the code field, following this example:
-files:{
-  "/App.js": {
-    "code": "import React from 'react';\nimport './styles.css';\nexport default function App() {\n  return (\n    <div className='p-4 bg-gray-100 text-center'>\n      <h1 className='text-2xl font-bold text-blue-500'>Hello, Tailwind CSS with Sandpack!</h1>\n      <p className='mt-2 text-gray-700'>This is a live code editor.</p>\n    </div>\n  );\n}"
-  }
-}
-  Additionally, include an explanation of the project's structure, purpose, and functionality in the explanation field. Make the response concise and clear in one paragraph.
-  - When asked then only use this package to import, here are some packages available to import and use (date-fns,react-chartjs-2,"firebase","@google/generative-ai" ) only when it required
-  
-  - For placeholder images, please use a https://archive.org/download/placeholder-image/placeholder-image.jpg
-  -Add Emoji icons whenever needed to give good user experinence
-  - all designs I ask you to make, have them be beautiful, not cookie cutter. Make webpages that are fully featured and worthy for production.
-
-- By default, this template supports JSX syntax with Tailwind CSS classes, React hooks, and Lucide React for icons. Do not install other packages for UI themes, icons, etc unless absolutely necessary or I request them.
-
-- Use icons from lucide-react for logos.
-
-- Use stock photos from unsplash where appropriate, only valid URLs you know exist. Do not download the images, only link to them in image tags.
-   `,
-
-
-
-}
-
-// - The lucide-react library is also available to be imported IF NECCESARY ONLY FOR THE FOLLOWING ICONS: Heart, Shield, Clock, Users, Play, Home, Search, Menu, User, Settings, Mail, Bell, Calendar, Clock, Heart, Star, Upload, Download, Trash, Edit, Plus, Minus, Check, X, ArrowRight. Here's an example of importing and using one: import { Heart } from "lucide-react"\` & \<Heart className=""  />\. PLEASE ONLY USE THE ICONS IF AN ICON IS NEEDED IN THE USER'S REQUEST.

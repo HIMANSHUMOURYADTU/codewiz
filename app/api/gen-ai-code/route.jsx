@@ -1,15 +1,17 @@
-import { GenAiCode } from "@/configs/AiModel";
+import { generateCodeResponse } from "@/configs/AiModel";
 import { NextResponse } from "next/server";
 
-export async function POST(req){
-    const {prompt}=await req.json();
-    try{
-        const result=await GenAiCode.sendMessage(prompt);
-        const respo=result.response.text();
-        return NextResponse.json(JSON.parse(respo));
-    }
-    catch(error){
+export async function POST(req) {
+    const { prompt } = await req.json();
+    try {
+        const payload = await generateCodeResponse(prompt);
+        return NextResponse.json(payload);
+    } catch (error) {
         console.error("Error generating AI code:", error);
-        return NextResponse.error({error:error.message});
+        const status = error?.message === "Model returned invalid JSON" ? 502 : 500;
+        return NextResponse.json(
+            { error: error?.message || "Failed to generate code", raw: error?.raw },
+            { status }
+        );
     }
 }

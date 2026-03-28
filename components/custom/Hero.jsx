@@ -20,14 +20,14 @@ const Hero = () => {
   const router=useRouter();
 
   const onGenerate = async (input) => {
-    if (!userDetail?.name) {
+    if (!userDetail?._id) {
       setOpenDialog(true);
       return;
     }
-    setMessages({
+    setMessages([{
       role: "user",
       content: input,
-    });
+    }]);
     
     const workspaceId = await CreateWorkspace({
       user: userDetail._id,
