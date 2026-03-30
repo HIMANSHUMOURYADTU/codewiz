@@ -19,9 +19,18 @@ function SandPackPreviewClient() {
     if (action?.actionType === "deploy") {
       const client = previewRef.current?.getClient();
       if (client) {
-        const result = await client.getCodeSandboxURL();
-        // Uses the official CodeSandbox to Vercel Deploy URL
-        window.open(`https://vercel.com/new/clone?s=https://codesandbox.io/s/${result?.sandboxId}`);
+        const deployWindow = window.open('', '_blank');
+        if (deployWindow) {
+          deployWindow.document.write('<html><body><h2 style="font-family:sans-serif;padding:2rem;">Preparing code for Vercel Deployment... Please wait.</h2></body></html>');
+          try {
+            const result = await client.getCodeSandboxURL();
+            deployWindow.location.href = `https://vercel.com/new/clone?s=https://codesandbox.io/s/${result?.sandboxId}`;
+          } catch (e) {
+            deployWindow.document.write('<html><body><h2 style="font-family:sans-serif;padding:2rem;">Deployment failed. Please try again.</h2></body></html>');
+          }
+        } else {
+          alert('Popup blocked! Please allow popups to deploy to Vercel.');
+        }
       }
     } else if (action?.actionType === "export") {
       try {
