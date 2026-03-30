@@ -5,20 +5,20 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import axios from "axios";
 import Lookup from "@/data/Lookup";
 import { Button } from "@/components/ui/button";
 import { useGoogleLogin } from "@react-oauth/google";
 import { UserDetailContext } from "@/context/UserDetailContext";
-import { useMutation } from "convex/react";
+import { useMutation, useConvex } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { v4 as uuid4 } from "uuid";
 
 const SignInDialog = ({ openDialog, closeDialog }) => {
   const { userDetail, setUserDetail } = React.useContext(UserDetailContext);
   const CreateUser = useMutation(api.users.CreateUser);
+  const convex = useConvex();
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -27,12 +27,14 @@ const SignInDialog = ({ openDialog, closeDialog }) => {
         "https://www.googleapis.com/oauth2/v3/userinfo",
         {
           headers: {
-            Authorization: `Bearer ${tokenResponse.access_token}`, // Updated accessToken to access_token
+            Authorization: `Bearer ${tokenResponse.access_token}`, 
           },
         }
       );
       console.log(userInfo);
       const user = userInfo.data;
+      
+      // Save in DB
       await CreateUser({
         name: user?.name,
         email: user?.email,
@@ -44,8 +46,12 @@ const SignInDialog = ({ openDialog, closeDialog }) => {
         localStorage.setItem("user", JSON.stringify(user));
       }
 
-      setUserDetail(userInfo?.data);
-      //Save this in db
+      // Fetch the FULL user object from convex to get the _id and tokens
+      const result = await convex.query(api.users.GetUser, {
+        email: user?.email,
+      });
+
+      setUserDetail(result || user);
       closeDialog(false);
     },
     onError: (errorResponse) => console.log(errorResponse),

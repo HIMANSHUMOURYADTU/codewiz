@@ -1,32 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import Colors from "../../data/Colors";
 import { UserDetailContext } from "../../context/UserDetailContext";
 import { ActionContext } from "../../context/ActionContext";
 import { Download, Rocket } from 'lucide-react';
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import SignInDialog from "./SignInDialog";
 
 const Header = () => {
   const { userDetail, setUserDetail } = React.useContext(UserDetailContext);
   const { action, setAction } = React.useContext(ActionContext);
+  const [openDialog, setOpenDialog] = useState(false);
+  const router = useRouter();
 
-  const path=usePathname();
+  const path = usePathname();
 
-  const onActionBtn=(action)=>{
+  const onActionBtn = (action) => {
     setAction({
-      actionType:action,
-      timeStamp:Date.now()
+      actionType: action,
+      timeStamp: Date.now()
     });
-  }
+  };
 
   return (
     <div className="p-4 flex items-center justify-between">
-      <Image src={"/image.png"} width={40} height={40} alt="Logo" />
+      <Image src={"/image.png"} width={40} height={40} alt="Logo" className="cursor-pointer" onClick={() => router.push('/')} />
       {!userDetail && (
         <div className="flex gap-5">
-          <Button variant="ghost">Sign In</Button>
+          <Button variant="ghost" onClick={() => setOpenDialog(true)}>Sign In</Button>
           <Button
+            onClick={() => setOpenDialog(true)}
             className="text-white"
             style={{
               backgroundColor: Colors.BLUE,
@@ -50,6 +54,7 @@ const Header = () => {
           </Button>
         </div>
       )}
+      <SignInDialog openDialog={openDialog} closeDialog={(v) => setOpenDialog(v)} />
     </div>
   );
 };
